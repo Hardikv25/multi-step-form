@@ -1,6 +1,7 @@
+'use client'
+
 import React from 'react'
 import { Progress } from '@/Components/ui/progress'
-import { category } from './category-data'
 import {
     Tooltip,
     TooltipContent,
@@ -8,10 +9,54 @@ import {
     TooltipTrigger,
 } from "@/Components/ui/tooltip"
 
-const CategoryProgress = () => {
+export type CategoryTypeScript = {
+    id: number,
+    title: string,
+    subtitle: string,
+    completeForm: number,
+    totalForm: number
+}
+
+type CategoryProgressProps = {
+    completedSteps: number[];
+  };
+
+const CategoryProgress = ({ completedSteps }: CategoryProgressProps) => {
+
+    const countCompleted = (stepNums: number[]) =>
+        stepNums.filter(step => completedSteps.includes(step)).length
+
+    const personalSteps = [1, 2]
+    const contactSteps = [3, 4]
+    const preferenceSteps = [5, 6]
+
+    const categories = [
+        {
+            id: 1,
+            title: "Personal Information",
+            subtitle: "Basic personal details",
+            completeForm: countCompleted(personalSteps),
+            totalForm: personalSteps.length
+        },
+        {
+            id: 2,
+            title: "Contact Details",
+            subtitle: "Your contact information",
+            completeForm: countCompleted(contactSteps),
+            totalForm: contactSteps.length
+        },
+        {
+            id: 3,
+            title: "Preferences",
+            subtitle: "Your preferences and settings",
+            completeForm: countCompleted(preferenceSteps),
+            totalForm: preferenceSteps.length
+        }
+    ]
+
     return (
         <TooltipProvider>
-            {category.map((item) => {
+            {categories.map((item) => {
                 const categoryPercentage = (item.completeForm / item.totalForm) * 100
                 return (
                     <Tooltip key={item.id}>

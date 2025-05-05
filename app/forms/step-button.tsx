@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/Components/ui/button'
+import { useEffect, useState } from 'react'
 
 interface StepNavigationProps {
   currentStep: number
@@ -14,12 +15,19 @@ const steps = [
 ]
 
 export default function StepNavigation({ currentStep, setStep }: StepNavigationProps) {
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem('completedSteps') || '[]')
+    setCompletedSteps(new Set(stored.map(Number)))
+  }, [])
+
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
       {steps.map(({ label, step }) => {
         const isActive = currentStep >= step && currentStep < step + 2
-        const isCompleted = step < currentStep
-        const isDisabled = step > currentStep
+        const isCompleted = completedSteps.has(step)
+        const isDisabled = !isCompleted && step !== currentStep
 
         return (
           <Button

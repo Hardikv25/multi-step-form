@@ -33,51 +33,57 @@ type FormData = {
 export default function StepForm() {
     const [step, setStep] = useState(1)
     const [submitted, setSubmitted] = useState(false)
+
     const {
         register,
         handleSubmit,
-        watch,
         setValue,
         control,
         formState: { errors },
     } = useForm<FormData>()
 
-    const watchedValues = watch()
-
-    // Load data from localStorage when the component mounts
     useEffect(() => {
-        const savedData = localStorage.getItem('step-form-data')
-        const savedStep = localStorage.getItem('step-form-step')
-        if (savedData) {
-            const parsedData = JSON.parse(savedData)
-            Object.keys(parsedData).forEach((key) => {
-                setValue(key as keyof FormData, parsedData[key])
-            })
+        const storedData = JSON.parse(localStorage.getItem('stepData') || '{}')
+        Object.keys(storedData).forEach((key) => {
+            setValue(key as keyof FormData, storedData[key])
+        })
+
+        const completedSteps = new Set(JSON.parse(localStorage.getItem('completedSteps') || '[]'))
+        let targetStep = 6
+        for (let i = 1; i <= 6; i++) {
+            if (!completedSteps.has(`${i}`)) {
+                targetStep = i
+                break
+            }
         }
-        if (savedStep) {
-            setStep(parseInt(savedStep))
+        setStep(targetStep)
+
+        const wasSubmitted = localStorage.getItem('isSubmitted') === 'true'
+        if (wasSubmitted) {
+            setSubmitted(true)
         }
     }, [setValue])
 
-    // Store data to localStorage when form values change
-    useEffect(() => {
-        localStorage.setItem('step-form-data', JSON.stringify(watchedValues))
-    }, [watchedValues])
+    const saveStepData = (data: Partial<FormData>) => {
+        const storedData = JSON.parse(localStorage.getItem('stepData') || '{}')
+        const updatedData = { ...storedData, ...data }
+        localStorage.setItem('stepData', JSON.stringify(updatedData))
 
-    // Store the current step to localStorage
-    useEffect(() => {
-        localStorage.setItem('step-form-step', step.toString())
-    }, [step])
+        const completedSteps = new Set(JSON.parse(localStorage.getItem('completedSteps') || '[]'))
+        completedSteps.add(`${step}`)
+        localStorage.setItem('completedSteps', JSON.stringify([...completedSteps]))
+    }
 
     const onSubmit = (data: FormData) => {
-        console.log('Form Submitted:', data)
-        // Save the current step data to localStorage
-        const savedData = JSON.parse(localStorage.getItem('step-form-data') || '{}')
-        localStorage.setItem(
-            'step-form-data',
-            JSON.stringify({ ...savedData, [step]: data })
-        )
-        setSubmitted(true)
+        saveStepData(data)
+        if (step === 6) {
+            const finalData = JSON.parse(localStorage.getItem('stepData') || '{}')
+            console.log('Final submission:', finalData)
+            localStorage.setItem('isSubmitted', 'true')
+            setSubmitted(true)
+        } else {
+            setSubmitted(true)
+        }
     }
 
     const goToNextStep = () => {
@@ -199,7 +205,7 @@ export default function StepForm() {
                             </div>
 
                             <div className="flex justify-between">
-                            <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">
+                                <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">
                                     Previous
                                 </Button>
                                 {!submitted ? (
@@ -258,7 +264,7 @@ export default function StepForm() {
                             </div>
 
                             <div className="flex justify-between">
-                            <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">
+                                <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">
                                     Previous
                                 </Button>
                                 {!submitted ? (
@@ -399,21 +405,25 @@ export default function StepForm() {
                                             />
                                         )}
                                     />
-                                    <Label htmlFor="terms">
-                                        I agree to the terms and conditions<span className="text-red-500 ml-1">*</span>
-                                    </Label>
+                                    <Label htmlFor="terms">I agree to the terms and conditions</Label>
                                 </div>
                                 {errors.terms && (
                                     <p className="text-sm text-red-500 mt-1">{errors.terms.message}</p>
                                 )}
                             </div>
+
                             <div className="flex justify-between">
-                                <Button type="button" onClick={() => setStep(5)} className="border border-gray-300 py-5">Previous</Button>
-                                <Button type="submit" className="bg-green-600 text-white py-5">Submit</Button>
+                                <Button type="button" onClick={() => setStep(5)} className="border border-gray-300 py-5">
+                                    Previous
+                                </Button>
+                                <Button type="submit" className="bg-green-600 text-white py-5">
+                                    Submit All
+                                </Button>
                             </div>
                         </form>
                     </>
                 )}
+
                 {submitted && step === 6 && (
                     <div className="mt-6 p-4 bg-green-100 border border-green-300 rounded-lg">
                         <h2 className="font-bold text-lg text-green-800">Thank you!</h2>
