@@ -291,7 +291,7 @@ export default function StepForm() {
                                         required: 'Phone Number is required',
                                         minLength: {
                                             value: 10,
-                                            message: 'Phone Mumber Must be 10 digit'
+                                            message: 'Phone Number Must be 10 digit'
                                         }
                                     })}
                                 />
@@ -330,7 +330,7 @@ export default function StepForm() {
                             </div>
 
                             <div className="flex justify-between">
-                                <Button type="button" onClick={() => setStep(3)} className="border border-gray-300 py-5">Previous</Button>
+                                <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">Previous</Button>
                                 {!submitted ? (
                                     <Button type="submit" className="bg-gray-900 text-white py-5">Complete</Button>
                                 ) : (
@@ -375,7 +375,7 @@ export default function StepForm() {
                                 )}
                             </div>
                             <div className="flex justify-between">
-                                <Button type="button" onClick={() => setStep(4)} className="border border-gray-300 py-5">Previous</Button>
+                                <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">Previous</Button>
                                 {!submitted ? (
                                     <Button type="submit" className="bg-gray-900 text-white py-5">Complete</Button>
                                 ) : (
@@ -413,7 +413,7 @@ export default function StepForm() {
                             </div>
 
                             <div className="flex justify-between">
-                                <Button type="button" onClick={() => setStep(5)} className="border border-gray-300 py-5">
+                                <Button type="button" onClick={goToPreviousStep} className="border border-gray-300 py-5">
                                     Previous
                                 </Button>
                                 <Button type="submit" className="bg-green-600 text-white py-5">
